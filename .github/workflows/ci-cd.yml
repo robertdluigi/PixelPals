@@ -27,20 +27,20 @@ jobs:
       - name: Build Docker image for Go app
         run: |
           cd backend
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 .
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker image for Go app
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
 
       - name: Deploy Go app to Ubuntu server
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> "
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }} &&
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 &&
             docker stop pixelpals-backend || true &&
             docker rm pixelpals-backend || true &&
-            docker run -d --name pixelpals-backend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }}
+            docker run -d --name pixelpals-backend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
           "
 
   # Frontend job
@@ -59,18 +59,18 @@ jobs:
       - name: Build Docker image for Frontend
         run: |
           cd frontend
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0 .
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker image for Frontend
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0
 
       - name: Deploy Frontend to Ubuntu server
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> "
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }} &&
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0 &&
             docker stop pixelpals-frontend || true &&
             docker rm pixelpals-frontend || true &&
-            docker run -d --name pixelpals-frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }}
+            docker run -d --name pixelpals-frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0
           "
