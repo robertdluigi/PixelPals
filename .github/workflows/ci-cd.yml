@@ -39,7 +39,7 @@ jobs:
 
       - name: Deploy Go app to Ubuntu server
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} hevix@192.168.1.133<< EOF
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} hevix@192.168.1.133 << EOF
             docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 &&
             docker stop pixelpals-backend || true &&
             docker rm pixelpals-backend || true &&
@@ -56,7 +56,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Build React app
         run: |
@@ -66,7 +66,7 @@ jobs:
 
       - name: Log in to Docker Hub
         run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker image for Frontend
         run: |
