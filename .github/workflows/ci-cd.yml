@@ -1,0 +1,76 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Backend job
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.23.0'
+
+      - name: Build Go app
+        run: |
+          cd backend
+          go mod tidy
+          go build -o app main.go
+
+      - name: Build Docker image for Go app
+        run: |
+          cd backend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }} .
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image for Go app
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }}
+
+      - name: Deploy Go app to Ubuntu server
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> "
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }} &&
+            docker stop pixelpals-backend || true &&
+            docker rm pixelpals-backend || true &&
+            docker run -d --name pixelpals-backend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:${{ github.sha }}
+          "
+
+  # Frontend job
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build React app
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      - name: Build Docker image for Frontend
+        run: |
+          cd frontend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }} .
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image for Frontend
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }}
+
+      - name: Deploy Frontend to Ubuntu server
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> "
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }} &&
+            docker stop pixelpals-frontend || true &&
+            docker rm pixelpals-frontend || true &&
+            docker run -d --name pixelpals-frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:${{ github.sha }}
+          "

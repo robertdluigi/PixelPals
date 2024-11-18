@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixelpals-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pixelpals-frontend
+  template:
+    metadata:
+      labels:
+        app: pixelpals-frontend
+    spec:
+      imagePullSecrets:
+        - name: my-docker-secret  # Reference to your created secret
+      containers:
+        - name: pixelpals-frontend
+          # Replace with your image and dynamically use the GitHub SHA
+          image: robertdocan/pixelpals-frontend:${{ github.sha }}  # Reference GitHub SHA
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pixelpals-frontend-service
+spec:
+  selector:
+    app: pixelpals-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
