@@ -6,43 +6,30 @@ on:
       - main
 
 jobs:
-  # Backend job
-  backend:
+  deploy:
     runs-on: ubuntu-latest
-    environment: Release # Add the name of your environment here
+    environment: Release
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: '1.23.0'
-
-      - name: Build Go app
-        run: |
-          cd backend
-          go mod tidy
-          go build -o app main.go
 
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build Docker image for Go app
+      - name: Build Docker image
         run: |
-          cd backend
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0 .
 
-      - name: Push Docker image for Go app
+      - name: Push Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
+          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0
 
-      - name: Deploy Go app to Ubuntu server
+      - name: Deploy to Ubuntu server
         run: |
           ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> << EOF
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 &&
-            docker stop pixelpals-backend || true &&
-            docker rm pixelpals-backend || true &&
-            docker run -d --name pixelpals-backend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0 &&
+            docker stop pixelpals || true &&
+            docker rm pixelpals || true &&
+            docker run -d --name pixelpals -p 8080:8080 -p 80:80 ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0
           EOF
