@@ -9,6 +9,7 @@ jobs:
   # Backend job
   backend:
     runs-on: ubuntu-latest
+    environment: Release # Add the name of your environment here
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -39,49 +40,9 @@ jobs:
 
       - name: Deploy Go app to Ubuntu server
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} hevix@192.168.1.133 << EOF
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> << EOF
             docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 &&
             docker stop pixelpals-backend || true &&
             docker rm pixelpals-backend || true &&
             docker run -d --name pixelpals-backend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
-          EOF
-
-  # Frontend job
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Build React app
-        run: |
-          cd frontend
-          npm install
-          npm run build
-
-      - name: Log in to Docker Hub
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Build Docker image for Frontend
-        run: |
-          cd frontend
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0 .
-
-      - name: Push Docker image for Frontend
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0
-
-      - name: Deploy Frontend to Ubuntu server
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} hevix@192.168.1.133 << EOF
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0 &&
-            docker stop pixelpals-frontend || true &&
-            docker rm pixelpals-frontend || true &&
-            docker run -d --name pixelpals-frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0
           EOF
