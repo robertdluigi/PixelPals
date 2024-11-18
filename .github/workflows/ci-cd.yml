@@ -68,7 +68,7 @@ jobs:
 
       - name: Deploy Frontend to Ubuntu server
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> "
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} hevix@192.168.1.133 "
             docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0 &&
             docker stop pixelpals-frontend || true &&
             docker rm pixelpals-frontend || true &&
