@@ -27,7 +27,7 @@ jobs:
 
       - name: Deploy to Ubuntu server
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@<YOUR_UBUNTU_SERVER_IP> << EOF
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} hevix@192.168.1.133 << EOF
             docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0 &&
             docker stop pixelpals || true &&
             docker rm pixelpals || true &&
