@@ -25,13 +25,16 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0
 
-      - name: Deploy Go app to Ubuntu server
+      - name: Deploy application to Ubuntu server
         run: |
+          # Save the private key from GitHub Secrets
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
           chmod 600 private_key.pem
+
+          # SSH into the server and deploy the Docker container
           ssh -o StrictHostKeyChecking=no -i private_key.pem hevix@192.168.1.133 << EOF
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 &&
-            docker stop pixelpals-backend || true &&
-            docker rm pixelpals-backend || true &&
-            docker run -d --name pixelpals-backend -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0 &&
+            docker stop pixelpals || true &&
+            docker rm pixelpals || true &&
+            docker run -d --name pixelpals -p 80:3000 ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0
           EOF
