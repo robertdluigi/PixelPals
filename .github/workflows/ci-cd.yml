@@ -63,10 +63,17 @@ jobs:
             # Navigate to the project folder (if not already there)
             cd ~/pixelpals
 
-            # Use the existing docker-compose.yml from the project root
+            # Stop and remove existing containers
             docker stop pixelpals-frontend || true
             docker stop pixelpals-backend || true
             docker-compose down
+
+            # Pull the latest images from Docker Hub
             docker-compose pull
+
+            # Start the containers in detached mode (with -d)
             docker-compose up -d
+
+            # Ensure the backend container stays alive by using restart policy
+            docker update --restart=always pixelpals-backend
           EOF
