@@ -1,14 +1,31 @@
 # Stage 1: Build the Go app
 FROM golang:1.23 AS builder
 WORKDIR /app
+
+# Copy go.mod and go.sum files
 COPY go.mod go.sum ./
+
+# Run go mod tidy to clean up dependencies
+RUN go mod tidy
+
+# Download dependencies
 RUN go mod download
+
+# Copy the rest of the source code
 COPY . .
+
+# Build the Go app
 RUN go build -o main .
 
 # Stage 2: Serve the Go app
 FROM debian:bullseye-slim
 WORKDIR /app
+
+# Copy the compiled binary from the builder stage
 COPY --from=builder /app/main .
+
+# Expose port 8080
 EXPOSE 8080
+
+# Run the Go app
 CMD ["./main"]
