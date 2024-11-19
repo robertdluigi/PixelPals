@@ -8,7 +8,7 @@ import (
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	// Example response when a request is made to the backend
-	fmt.Fprintf(w, "Hello, from the backend!")
+	fmt.Fprintf(w, "Hello, from the Go Backend!")
 }
 
 func main() {
