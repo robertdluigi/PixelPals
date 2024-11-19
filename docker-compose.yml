@@ -1,18 +1,17 @@
-version: '3.8'
-
+---
+version: "3.8"
 services:
   backend:
     image: robertdocan/pixelpals-backend:v1.0
     container_name: pixelpals-backend
     ports:
-      - "8080:8080"
+      - 8080:8080
     environment:
       - ENV=production
-
   frontend:
     image: robertdocan/pixelpals-frontend:v1.0
     container_name: pixelpals-frontend
     ports:
-      - "80:3000"
+      - 80:3000
     environment:
       - ENV=production
