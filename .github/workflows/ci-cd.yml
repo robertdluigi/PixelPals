@@ -35,7 +35,7 @@ jobs:
       - name: Deploy application to Ubuntu server
         run: |
           # SSH and Deploy
-          ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+          ssh -o StrictHostKeyChecking=no -p 2222 -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
             mkdir -p ~/pixelpals &&
             cd ~/pixelpals &&
             echo 'version: "3.8"
