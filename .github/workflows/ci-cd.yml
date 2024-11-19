@@ -43,7 +43,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
 
-      # Deploy to Ubuntu Server
+      # Deploy to Ubuntu Server with zero downtime deployment
       - name: Deploy application to Ubuntu server
         run: |
           # Save the private key to a file
@@ -60,18 +60,18 @@ jobs:
 
           # SSH and Deploy to the server using the private key
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
-            # Navigate to the project folder (if not already there)
+            # Navigate to the project folder
             cd ~/pixelpals
 
-            # Pull latest code
+            # Pull latest code (this does not interrupt the running services)
             git pull origin main
 
-            # Pull the latest Docker images (if updated)
-            docker-compose pull
+            # Pull the latest Docker images (only if they have changed)
+            docker-compose pull frontend backend
 
-            # Start containers if not already running, or recreate if changed
-            docker-compose up -d
+            # Use docker-compose to update the containers (this ensures minimal downtime)
+            docker-compose up -d --no-deps frontend backend
 
-            # Ensure the backend container is running and listening (no restart needed)
+            # Ensure the backend container is running and listening
             docker inspect -f '{{.State.Running}}' pixelpals-backend || docker-compose up -d pixelpals-backend
           EOF

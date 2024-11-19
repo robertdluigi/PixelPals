@@ -1,21 +1,28 @@
 ---
 version: '3.8'
+
 services:
   frontend:
     image: robertdocan/pixelpals-frontend:v1.0
     ports:
-      - "8081:3000"  # Expose frontend on port 8081
+      - "8081:3000"
     networks:
       - pixelpals_network
-    restart: always  # Ensure frontend always restarts if stopped
+    restart: always
 
   backend:
     image: robertdocan/pixelpals-backend:v1.0
     ports:
-      - "8080:8080"  # Expose backend on port 8080
+      - "8080:8080"
     networks:
       - pixelpals_network
-    restart: always  # Ensure backend always restarts if stopped
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
 
 networks:
   pixelpals_network:
