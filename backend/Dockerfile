@@ -22,7 +22,7 @@ COPY . .
 RUN go build -o main .
 
 # Stage 2: Serve the Go app
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 WORKDIR /app
 
 # Install dependencies including a newer version of glibc
