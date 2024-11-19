@@ -62,7 +62,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
             # Navigate to the project folder (if not already there)
             cd ~/pixelpals
-
+          
+            # Pull latest code
+            git pull origin main
+          
             # Stop and remove existing containers
             docker stop pixelpals-frontend || true
             docker stop pixelpals-backend || true
