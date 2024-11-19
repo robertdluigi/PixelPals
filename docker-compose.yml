@@ -1,18 +1,19 @@
 ---
 version: '3.8'
 services:
-  backend:
-    image: 'robertdocan/pixelpals-backend:v1.0'
-    container_name: pixelpals-backend
-    ports:
-      - '8080:8080'
-    environment:
-      - ENV=production
-
   frontend:
-    image: 'robertdocan/pixelpals-frontend:v1.0'
-    container_name: pixelpals-frontend
+    image: robertdocan/pixelpals-frontend:v1.0
     ports:
-      - '8081:3000'
-    environment:
-      - ENV=production
+      - "8081:3000"
+    networks:
+      - pixelpals_network
+  backend:
+    image: robertdocan/pixelpals-backend:v1.0
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - pixelpals_network
+networks:
+  pixelpals_network:
+    driver: bridge
