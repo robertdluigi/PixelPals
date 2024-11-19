@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   backend:
     image: 'robertdocan/pixelpals-backend:v1.0'
@@ -7,13 +8,6 @@ services:
       - '8080:8080'
     environment:
       - ENV=production
-      - DATABASE_URL=your-database-url-here # Example for DB connection
-      - API_KEY=your-api-key-here           # Example for external API key
-    restart: always
-    networks:
-      - pixelpals-network
-    depends_on:
-      - frontend # Ensures frontend starts first if needed
 
   frontend:
     image: 'robertdocan/pixelpals-frontend:v1.0'
@@ -22,20 +16,3 @@ services:
       - '80:3000'
     environment:
       - ENV=production
-      - REACT_APP_API_URL=http://backend:8080 # Backend API URL for frontend
-      - NODE_ENV=production
-    restart: always
-    networks:
-      - pixelpals-network
-    depends_on:
-      - backend # Ensures backend starts first if needed
-
-networks:
-  pixelpals-network:
-    driver: bridge
-
-volumes:
-  frontend-data:
-    driver: local
-  backend-data:
-    driver: local
