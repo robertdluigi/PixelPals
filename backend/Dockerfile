@@ -2,8 +2,8 @@
 FROM golang:1.23 AS builder
 WORKDIR /app
 
-# Copy go.mod and go.sum files
-COPY go.mod go.sum ./
+# Copy go.mod file (we'll skip go.sum here)
+COPY go.mod ./
 
 # Run go mod tidy to clean up dependencies
 RUN go mod tidy
