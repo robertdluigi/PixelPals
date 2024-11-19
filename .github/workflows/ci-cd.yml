@@ -60,6 +60,12 @@ jobs:
 
           # SSH and Deploy to the server using the private key
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+           # Navigate to the home directory
+            cd ~
+            # Create the pixelpals directory if it doesn't exist
+            if [ ! -d "pixelpals" ]; then
+              git clone https://github.com/your-username/pixelpals.git
+            fi
             # Navigate to the project folder
             cd ~/pixelpals
 
