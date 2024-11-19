@@ -19,7 +19,7 @@ RUN wget http://ftp.gnu.org/gnu/libc/glibc-2.34.tar.gz && \
 # Set the LD_LIBRARY_PATH to include the newer glibc
 ENV LD_LIBRARY_PATH="/opt/glibc-2.34/lib:$LD_LIBRARY_PATH"
 
-# Copy go.mod file (we'll skip go.sum here)
+# Copy go.mod file
 COPY go.mod ./ 
 
 # Run go mod tidy to clean up dependencies
@@ -38,9 +38,11 @@ RUN go build -o main .
 FROM debian:bullseye-slim
 WORKDIR /app
 
-# Install dependencies including a newer version of glibc
-RUN apt-get update && \
-    apt-get install -y libc6 libc6-dev
+# Copy glibc from the builder stage
+COPY --from=builder /opt/glibc-2.34 /opt/glibc-2.34
+
+# Set the LD_LIBRARY_PATH for the final image
+ENV LD_LIBRARY_PATH="/opt/glibc-2.34/lib:$LD_LIBRARY_PATH"
 
 # Copy the compiled binary from the builder stage
 COPY --from=builder /app/main .
