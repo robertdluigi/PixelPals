@@ -27,6 +27,9 @@ jobs:
 
       - name: Deploy application to Ubuntu server
         run: |
+          # Ensure the .ssh directory exists
+          mkdir -p ~/.ssh
+
           # Save the private key from GitHub Secrets
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/private_key.pem
           chmod 600 ~/.ssh/private_key.pem
