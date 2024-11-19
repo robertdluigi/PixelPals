@@ -48,24 +48,14 @@ jobs:
 
           # SSH and Deploy to the server using the private key
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
-            mkdir -p ~/pixelpals &&
-            cd ~/pixelpals &&
-            echo 'version: "3.8"
+            # Navigate to the project folder (if not already there)
+            cd ~/pixelpals
+            
+            # Ensure we have the latest code (optional if you pull latest code with `git pull`)
+            git pull origin main
 
-            services:
-              backend:
-                image: ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
-                container_name: pixelpals-backend
-                ports:
-                  - "8080:8080"
-
-              frontend:
-                image: ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0
-                container_name: pixelpals-frontend
-                ports:
-                  - "80:3000"
-            ' > docker-compose.yml &&
-            docker-compose down &&
-            docker-compose pull &&
+            # Use the existing docker-compose.yml from the project root
+            docker-compose down
+            docker-compose pull
             docker-compose up -d
           EOF
