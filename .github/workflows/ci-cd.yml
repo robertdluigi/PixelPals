@@ -64,7 +64,7 @@ jobs:
             cd ~
             # Create the pixelpals directory if it doesn't exist
             if [ ! -d "pixelpals" ]; then
-              git clone https://github.com/your-username/pixelpals.git
+              git clone https://github.com/robertdluigi/pixelpals.git
             fi
             # Navigate to the project folder
             cd ~/pixelpals
