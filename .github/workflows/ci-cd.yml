@@ -62,21 +62,16 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
             # Navigate to the project folder (if not already there)
             cd ~/pixelpals
-          
+
             # Pull latest code
             git pull origin main
-          
-            # Stop and remove existing containers
-            docker stop pixelpals-frontend || true
-            docker stop pixelpals-backend || true
-            docker-compose down
 
-            # Pull the latest images from Docker Hub
+            # Pull the latest Docker images (if updated)
             docker-compose pull
 
-            # Start the containers in detached mode (with -d)
+            # Start containers if not already running, or recreate if changed
             docker-compose up -d
 
-            # Ensure the backend container stays alive by using restart policy
-            docker update --restart=always pixelpals-backend
+            # Ensure the backend container is running and listening (no restart needed)
+            docker inspect -f '{{.State.Running}}' pixelpals-backend || docker-compose up -d pixelpals-backend
           EOF
