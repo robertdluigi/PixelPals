@@ -50,9 +50,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -p 2222 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
             # Navigate to the project folder (if not already there)
             cd ~/pixelpals
-            
-            # Ensure we have the latest code (optional if you pull latest code with `git pull`)
-            git pull origin main
 
             # Use the existing docker-compose.yml from the project root
             docker-compose down
