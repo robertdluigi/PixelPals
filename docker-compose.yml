@@ -13,6 +13,6 @@ services:
     image: 'robertdocan/pixelpals-frontend:v1.0'
     container_name: pixelpals-frontend
     ports:
-      - '80:3000'
+      - '8081:3000'
     environment:
       - ENV=production
