@@ -1,29 +1,18 @@
 ---
 version: '3.8'
-
 services:
-  frontend:
-    image: robertdocan/pixelpals-frontend:v1.0
-    ports:
-      - "8081:3000"
-    networks:
-      - pixelpals_network
-    restart: always
-
   backend:
-    image: robertdocan/pixelpals-backend:v1.0
+    image: 'robertdocan/pixelpals-backend:v1.0'
+    container_name: pixelpals-backend
     ports:
-      - "8080:8080"
-    networks:
-      - pixelpals_network
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      retries: 3
-      start_period: 30s
-      timeout: 10s
+      - '8080:8080'
+    environment:
+      - ENV=production
 
-networks:
-  pixelpals_network:
-    driver: bridge
+  frontend:
+    image: 'robertdocan/pixelpals-frontend:v1.0'
+    container_name: pixelpals-frontend
+    ports:
+      - '8081:3000'
+    environment:
+      - ENV=production
