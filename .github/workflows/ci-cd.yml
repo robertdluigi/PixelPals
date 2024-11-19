@@ -6,38 +6,59 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    environment: Release
+
     steps:
+      # Checkout Code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Log in to Docker Hub
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build Docker image
+      # Build and Push Frontend Docker Image (Next.js)
+      - name: Build and push frontend Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0 .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0 ./frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0
 
-      - name: Push Docker image
+      # Build and Push Backend Docker Image (Go)
+      - name: Build and push backend Docker image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0 ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
 
+      # Deploy to Ubuntu Server
       - name: Deploy application to Ubuntu server
         run: |
-          # Ensure the .ssh directory exists
+          # Save the private key
           mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-          # Save the private key from GitHub Secrets
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/private_key.pem
-          chmod 600 ~/.ssh/private_key.pem
+          # SSH and Deploy
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+            mkdir -p ~/pixelpals &&
+            cd ~/pixelpals &&
+            echo 'version: "3.8"
 
-          # SSH into the server and deploy the Docker container
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/private_key.pem hevix@192.168.1.133 << EOF
-            docker pull ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0 &&
-            docker stop pixelpals || true &&
-            docker rm pixelpals || true &&
-            docker run -d --name pixelpals -p 80:3000 ${{ secrets.DOCKER_USERNAME }}/pixelpals:v1.0
+            services:
+              backend:
+                image: ${{ secrets.DOCKER_USERNAME }}/pixelpals-backend:v1.0
+                container_name: pixelpals-backend
+                ports:
+                  - "8080:8080"
+
+              frontend:
+                image: ${{ secrets.DOCKER_USERNAME }}/pixelpals-frontend:v1.0
+                container_name: pixelpals-frontend
+                ports:
+                  - "80:3000"
+            ' > docker-compose.yml &&
+            docker-compose down &&
+            docker-compose pull &&
+            docker-compose up -d
           EOF
