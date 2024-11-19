@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   backend:
     image: 'robertdocan/pixelpals-backend:v1.0'
